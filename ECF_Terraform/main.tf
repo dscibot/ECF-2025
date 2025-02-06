@@ -42,7 +42,13 @@ resource "aws_instance" "web" {
 #Change:
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "ecf-bucket"
+  bucket = "ecf-bucket-${random_id.suffix.hex}"  
+}
+
+# Random name 
+resource "random_id" "suffix" {
+  byte_length = 4
+
 }
 
 resource "aws_s3_bucket_ownership_controls" "bucket_ownership" {
