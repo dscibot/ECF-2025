@@ -1,50 +1,55 @@
-name: Deploy Java App to AWS
+name: Deploy Java App to AWS EC2 via Tomcat Manager
 
 on:
   push:
     branches:
-      - main  # Déclencher le pipeline sur un push dans main
+      - main  # Déclenche le workflow sur un push vers main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # 📌 Étape 1 : Récupérer le code source
+    # 📌 1. Récupérer le code source
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 📌 Étape 2 : Installer Java et Maven
+    # 📌 2. Installer Java et Maven
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    # 📌 Étape 3 : Compiler l'application avec Maven
+    # 📌 3. Compiler l'application avec Maven
     - name: Build with Maven
       working-directory: HelloWorld
       run: mvn clean package
 
-    # 📌 Étape 4 : Ajouter la clé SSH
-    - name: Configure SSH Key
-      run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ecf.pem
-        chmod 600 ecf.pem
+    # 📌 4. Vérifier les fichiers générés
+    - name: List target directory
+      working-directory: HelloWorld
+      run: ls -l target/
 
-    # 📌 Étape 5 : Déployer l'application sur AWS
-    - name: Deploy to AWS EC2
+    # 📌 5. Déploiement sur Tomcat via API Manager
+    - name: Deploy WAR to Tomcat
       env:
         EC2_IP: ${{ secrets.EC2_IP }}
+        TOMCAT_USER: admin
+        TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+      working-directory: HelloWorld
       run: |
+<<<<<<< HEAD
+        echo "Déploiement via l'API Manager..."
+        curl -v -u $TOMCAT_USER:$TOMCAT_PASSWORD --upload-file target/helloworld-0.0.1-SNAPSHOT.war \
+        "http://${EC2_IP}:8080/manager/text/deploy?path=/app&update=true"
+=======
         echo "Transfert du fichier WAR..."
-        scp -i ecf.pem -o StrictHostKeyChecking=no target/*.war admin@${EC2_IP}:/home/admin/app.war
+        scp -i ecf.pem -o StrictHostKeyChecking=no HelloWorld/target/helloworld-0.0.1-SNAPSHOT.war admin@${EC2_IP}:/home/admin/app.war
+>>>>>>> 5b49e076f05084768394c580e8ef3ba6e474fff9
 
-        echo "Redémarrage de Tomcat..."
-        ssh -i ecf.pem admin@${EC2_IP} << 'EOF'
-        sudo systemctl restart tomcat10
-        EOF
-
-    # 📌 Étape 6 : Vérifier le déploiement
+    # 📌 6. Vérifier si l'application est bien déployée
     - name: Check Deployment
-      run: curl -I http://${{ secrets.EC2_IP }}:8080/app
+      run: |
+        sleep 10  # Attendre que Tomcat termine le déploiement
+        curl -I http://${{ secrets.EC2_IP }}:8080/app
