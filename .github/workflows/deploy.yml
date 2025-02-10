@@ -39,14 +39,9 @@ jobs:
         TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
       working-directory: HelloWorld
       run: |
-<<<<<<< HEAD
         echo "Déploiement via l'API Manager..."
         curl -v -u $TOMCAT_USER:$TOMCAT_PASSWORD --upload-file target/helloworld-0.0.1-SNAPSHOT.war \
         "http://${EC2_IP}:8080/manager/text/deploy?path=/app&update=true"
-=======
-        echo "Transfert du fichier WAR..."
-        scp -i ecf.pem -o StrictHostKeyChecking=no HelloWorld/target/helloworld-0.0.1-SNAPSHOT.war admin@${EC2_IP}:/home/admin/app.war
->>>>>>> 5b49e076f05084768394c580e8ef3ba6e474fff9
 
     # 📌 6. Vérifier si l'application est bien déployée
     - name: Check Deployment
