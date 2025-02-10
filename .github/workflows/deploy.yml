@@ -20,6 +20,7 @@ jobs:
         java-version: '17'
 
     - name: Build project with Maven
+      working-directory: HelloWorld
       run: mvn clean package
 
     - name: Configure AWS credentials
