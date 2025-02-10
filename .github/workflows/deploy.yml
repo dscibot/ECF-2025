@@ -1,9 +1,9 @@
-name: Deploy to AWS EC2
+name: Deploy HelloWorld to AWS EC2
 
 on:
   push:
     branches:
-      - main  # Déclenche le workflow sur un push vers main
+      - main 
 
 jobs:
   deploy:
@@ -39,7 +39,7 @@ jobs:
 
     - name: Deploy WAR to EC2
       run: |
-        scp -i ecf.pem -o StrictHostKeyChecking=no target/*.war admin@${EC2_IP}:/home/admin/app.war
+        scp -i ecf.pem -o StrictHostKeyChecking=no hello-world/target/*.war admin@${EC2_IP}:/home/admin/app.war
         ssh -i ecf.pem admin@${EC2_IP} << 'EOF'
         sudo systemctl restart tomcat10
         EOF
