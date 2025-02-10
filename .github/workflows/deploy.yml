@@ -10,28 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 📌 1. Récupérer le code source
+    # Récupérer le code source
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 📌 2. Installer Java et Maven
+    # Installer Java et Maven
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    # 📌 3. Compiler l'application avec Maven
+    # Compiler l'application avec Maven
     - name: Build with Maven
       working-directory: HelloWorld
       run: mvn clean package
 
-    # 📌 4. Vérifier les fichiers générés
+    # Vérifier les fichiers générés
     - name: List target directory
       working-directory: HelloWorld
       run: ls -l target/
 
-    # 📌 5. Déploiement sur Tomcat via API Manager
+    # Déploiement sur Tomcat via API Manager
     - name: Deploy WAR to Tomcat
       env:
         EC2_IP: ${{ secrets.EC2_IP }}
@@ -39,12 +39,12 @@ jobs:
         TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
       working-directory: HelloWorld
       run: |
-        echo "Déploiement via l'API Manager..."
+        echo "Deploiement via l'API Manager..."
         curl -v -u $TOMCAT_USER:$TOMCAT_PASSWORD --upload-file target/helloworld-0.0.1-SNAPSHOT.war \
         "http://${EC2_IP}:8080/manager/text/deploy?path=/app&update=true"
 
-    # 📌 6. Vérifier si l'application est bien déployée
+    # Vérifier si l'application est bien déployée
     - name: Check Deployment
       run: |
-        sleep 10  # Attendre que Tomcat termine le déploiement
+        sleep 10  
         curl -I http://${{ secrets.EC2_IP }}:8080/app
