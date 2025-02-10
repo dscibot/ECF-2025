@@ -1,0 +1,44 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main  # Déclenche le workflow sur un push vers main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build project with Maven
+      run: mvn clean package
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-3
+
+    - name: Get EC2 instance public IP
+      id: ec2_ip
+      run: |
+        IP=$(aws ec2 describe-instances --instance-ids ${{ secrets.AWS_INSTANCE_ID }} \
+          --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+        echo "EC2_IP=$IP" >> $GITHUB_ENV
+
+    - name: Deploy WAR to EC2
+      run: |
+        scp -i ecf.pem -o StrictHostKeyChecking=no target/*.war admin@${EC2_IP}:/home/admin/app.war
+        ssh -i ecf.pem admin@${EC2_IP} << 'EOF'
+        sudo systemctl restart tomcat10
+        EOF
