@@ -1,5 +1,5 @@
 output "rds_endpoint" {
-  value       = aws_db_instance.mysql.endpoint
+  value       = aws_db_instance.ecf_rds.endpoint
   description = "Endpoint"
 }
 

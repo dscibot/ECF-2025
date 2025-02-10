@@ -21,9 +21,9 @@ resource "aws_instance" "web" {
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo yum update -y
-              sudo yum install -y java-1.8.0-openjdk
-              sudo yum install -y tomcat
+			  sudo apt update
+			  sudo apt install default-jdk #default-jdk => V17
+			  sudo apt install tomcat10
               sudo systemctl start tomcat
               sudo systemctl enable tomcat
               EOF
@@ -33,13 +33,6 @@ resource "aws_instance" "web" {
   }
 }
 
-
-#Argument is deprecated:
-#resource "aws_s3_bucket" "bucket" {
-#  bucket = "ecf-bucket" 
-#  acl    = "private"
-#}
-#Change:
 
 resource "aws_s3_bucket" "bucket" {
   bucket = "ecf-bucket-${random_id.suffix.hex}"  
