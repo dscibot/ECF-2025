@@ -1,3 +1,5 @@
+#définition affichage de fin dans terminal
+
 output "rds_endpoint" {
   value       = aws_db_instance.ecf_rds.endpoint
   description = "Endpoint"
