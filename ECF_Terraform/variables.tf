@@ -1,4 +1,4 @@
-#AWS ID
+#Fichier de définition des variables pour le fichier main
 variable "aws_region" {
   description = "Région AWS"
   type        = string
