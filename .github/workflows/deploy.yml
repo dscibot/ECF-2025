@@ -3,48 +3,48 @@ name: Deploy Java App to AWS EC2 via Tomcat Manager
 on:
   push:
     branches:
-      - main  # Déclenche le workflow sur un push vers main
+      - main  # Déclenche le workflow sur un push vers la branche main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Spécifie l'environnement d'exécution du job
 
     steps:
-    # Récupérer le code source
+    # Recupération du code source en utilisant Action Github
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3  
 
-    # Installer Java et Maven
+    # Installation Java et Maven
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v3  
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: 'temurin' 
+        java-version: '17' 
 
-    # Compiler l'application avec Maven
+    # Compilation avec Maven
     - name: Build with Maven
-      working-directory: HelloWorld
-      run: mvn clean package
+      working-directory: HelloWorld  # rep
+      run: mvn clean package  
 
-    # Vérifier les fichiers générés
+    # Vérification du répertoire
     - name: List target directory
       working-directory: HelloWorld
-      run: ls -l target/
+      run: ls -l target/  
 
     # Déploiement sur Tomcat via API Manager
     - name: Deploy WAR to Tomcat
       env:
-        EC2_IP: ${{ secrets.EC2_IP }}
-        TOMCAT_USER: admin
-        TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+        EC2_IP: ${{ secrets.EC2_IP }}  # EC2 ip => dans secret
+        TOMCAT_USER: admin  # Tomcat user
+        TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}  # Tomcat mdp => dans secret
       working-directory: HelloWorld
       run: |
         echo "Deploiement via l'API Manager..."
         curl -v -u $TOMCAT_USER:$TOMCAT_PASSWORD --upload-file target/helloworld-0.0.1-SNAPSHOT.war \
-        "http://${EC2_IP}:8080/manager/text/deploy?path=/app&update=true"
+        "http://${EC2_IP}:8080/manager/text/deploy?path=/app&update=true"  
 
-    # Vérifier si l'application est bien déployée
+    # Vérification si bien déployé
     - name: Check Deployment
       run: |
         sleep 10  
-        curl -I http://${{ secrets.EC2_IP }}:8080/app
+        curl -I http://${{ secrets.EC2_IP }}:8080/app  
